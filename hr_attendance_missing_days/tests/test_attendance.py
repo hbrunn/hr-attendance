@@ -109,3 +109,21 @@ class TestAttendance(TransactionCase):
 
         attendances_new = attendances_after - attendances_before
         self.assertFalse(attendances_new)
+
+    def test_multi_day_attendance(self):
+        """Test that having an attendance crossing a day border doesn't break"""
+        self.employee.tz = "Europe/Amsterdam"
+        attendance = self.env["hr.attendance"].create(
+            {
+                "employee_id": self.employee.id,
+                "check_in": "2023-12-18 21:00:00",
+                "check_out": "2023-12-19 13:00:00",
+            }
+        )
+        self.employee._create_missing_attendances(
+            date(2023, 12, 18), date(2023, 12, 19)
+        )
+        self.assertEqual(
+            self.env["hr.attendance"].search([("employee_id", "=", self.employee.id)]),
+            attendance,
+        )

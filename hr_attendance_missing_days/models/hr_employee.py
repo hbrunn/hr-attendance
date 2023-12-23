@@ -79,6 +79,9 @@ class Employee(models.Model):
         attendances = {
             ensure_tz(attendance.check_in, tz).date()
             for attendance in self.attendance_ids.filtered_domain(domain)
+        } | {
+            ensure_tz(attendance.check_out, tz).date()
+            for attendance in self.attendance_ids.filtered_domain(domain)
         }
 
         vals = []
